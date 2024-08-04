@@ -2,15 +2,16 @@ module Main where
 
 import Prelude
 
-import Data.Array (singleton)
-import Data.Maybe (Maybe(..))
-import Data.String (Pattern(..))
-import Data.Generic.Rep (class Generic)
-import Halogen as H
-import Halogen.HTML as HH
-import Halogen.HTML.Properties as HP
+import Data.Array (Array)
 import Effect (Effect)
-import Effect.Console as Console
+import Effect.Console (log)
+import Halogen.Aff as HA
+import Halogen.Aff.Util (runHalogenAff)
+import Halogen.HTML as HH
+import Halogen.HTML.Elements as HE
+import Halogen.HTML.Properties as HP
+import Halogen.VDom.Driver (runUI)
+import Halogen.Component (Component, component, render)
 
 type Transaction =
   { accountOwner :: String
@@ -30,32 +31,39 @@ transactions =
 
 renderTransaction :: Transaction -> HH.HTML
 renderTransaction transaction =
-  HH.tr_
-    [ HH.td_ [ HH.text transaction.accountOwner ]
-    , HH.td_ [ HH.text transaction.transferTo ]
-    , HH.td_ [ HH.text transaction.account ]
-    , HH.td_ [ HH.text transaction.bank ]
-    , HH.td_ [ HH.text $ show transaction.amount ]
-    , HH.td_ [ HH.text $ if transaction.isPix then "Yes" else "No" ]
+  HE.tr_
+    [ HE.td_ [ HH.text transaction.accountOwner ]
+    , HE.td_ [ HH.text transaction.transferTo ]
+    , HE.td_ [ HH.text transaction.account ]
+    , HE.td_ [ HH.text transaction.bank ]
+    , HE.td_ [ HH.text $ show transaction.amount ]
+    , HE.td_ [ HH.text $ if transaction.isPix then "Yes" else "No" ]
     ]
 
 renderTable :: Array Transaction -> HH.HTML
 renderTable txs =
-  HH.table_
-    [ HH.thead_
-        [ HH.tr_
-            [ HH.th_ [ HH.text "Proprietario da conta" ]
-            , HH.th_ [ HH.text "Transferido para" ]
-            , HH.th_ [ HH.text "Conta" ]
-            , HH.th_ [ HH.text "Banco" ]
-            , HH.th_ [ HH.text "Valor transferido" ]
-            , HH.th_ [ HH.text "Status" ]
+  HE.table_
+    [ HE.thead_
+        [ HE.tr_
+            [ HE.th_ [ HH.text "Proprietario da conta" ]
+            , HE.th_ [ HH.text "Transferido para" ]
+            , HE.th_ [ HH.text "Conta" ]
+            , HE.th_ [ HH.text "Banco" ]
+            , HE.th_ [ HH.text "Valor transferido" ]
+            , HE.th_ [ HH.text "Status" ]
             ]
         ]
-    , HH.tbody_ (map renderTransaction txs)
+    , HE.tbody_ (map renderTransaction txs)
     ]
 
+ui :: Component HA.Query Unit Unit Void Unit
+ui = component
+  { initialState: \_ -> unit
+  , render: const $ renderTable transactions
+  , eval: \_ _ -> pure unit
+  }
+
 main :: Effect Unit
-main = do
-  let table = renderTable transactions
-  HH.renderToBody table
+main = runHalogenAff do
+  body <- HA.awaitBody
+  runUI ui unit body
