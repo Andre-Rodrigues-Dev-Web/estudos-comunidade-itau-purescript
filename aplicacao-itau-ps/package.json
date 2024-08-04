@@ -1,0 +1,14 @@
+{
+    "name": "my-purescript-project",
+    "version": "0.1.0",
+    "description": "A PureScript project to list transactions in an HTML table",
+    "scripts": {
+      "start": "pulp server",
+      "build": "pulp build"
+    },
+    "dependencies": {
+      "pulp": "^15.0.0",
+      "bower": "^1.8.8"
+    }
+  }
+  

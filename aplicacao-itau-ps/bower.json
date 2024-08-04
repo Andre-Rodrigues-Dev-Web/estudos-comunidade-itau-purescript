@@ -1,0 +1,14 @@
+{
+    "name": "my-purescript-project",
+    "ignore": [
+      "**/.*",
+      "node_modules",
+      "bower_components",
+      "output"
+    ],
+    "dependencies": {
+      "purescript-prelude": "^5.0.0",
+      "purescript-halogen": "^6.0.0"
+    }
+  }
+  
